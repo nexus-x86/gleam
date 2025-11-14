@@ -1,7 +1,9 @@
+// This is the file that runs UCI
 use cozy_chess::*;
 use cozy_chess::util::*;
+use crate::eval::*;
 use std::io;
-
+mod eval;
 
 macro_rules! ignore {
     () => {
