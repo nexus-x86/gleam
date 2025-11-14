@@ -4,25 +4,25 @@
 
 use cozy_chess::*;
 
-pub type EvalInt = i16;
+pub type EvalInt = i32;
 
-fn getVal(piece: Option<Piece>) -> EvalInt {
-    if piece == Some(Piece::Pawn) {
+fn get_val(piece: Piece) -> EvalInt {
+    if piece == Piece::Pawn {
         return 100;
     } 
-    if piece == Some(Piece::Knight) {
+    if piece == Piece::Knight {
         return 250;
     }
-    if piece == Some(Piece::Bishop) {
+    if piece == Piece::Bishop {
         return 300;
     }
-    if piece == Some(Piece::Rook) {
+    if piece == Piece::Rook {
         return 500;
     }
-    if piece == Some(Piece::Queen) {
+    if piece == Piece::Queen {
         return 900;
     }
-    if piece == Some(Piece::King) {
+    if piece == Piece::King {
         return 20000;
     }
     return 0;
@@ -35,21 +35,24 @@ pub trait Eval {
 impl Eval for Board {
 
     fn eval(&self) -> EvalInt {
-        let mut whiteScore = 0;
-        let mut blackScore = 0;
+        let mut white_score = 0;
+        let mut black_score = 0;
 
 
         let bb = BitBoard::FULL;
         let squares = &Square::ALL;
-        for (s1, &s2) in bb.iter().zip(squares) {
+        for (s1, &_s2) in bb.iter().zip(squares) {
             if self.color_on(s1) == Some(Color::White) {
-                whiteScore += getVal(self.piece_on(s1));
+                white_score += get_val(self.piece_on(s1).unwrap());
             } else if self.color_on(s1) == Some(Color::Black) {
-                blackScore += getVal(self.piece_on(s1));
+                black_score += get_val(self.piece_on(s1).unwrap());
             }
         }
 
-        let score = whiteScore - blackScore;
+        let score = white_score - black_score;
+        if self.side_to_move() == Color::Black {
+            return score * -1;
+        }
         return score;
     }
 

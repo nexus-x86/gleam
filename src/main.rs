@@ -1,9 +1,18 @@
 // This is the file that runs UCI
+
+/*
+python3 -m venv venv
+virtualenv venv -p python3
+source venv/bin/activate
+python3 lichess-bot.py
+*/
+
 use cozy_chess::*;
 use cozy_chess::util::*;
-use crate::eval::*;
 use std::io;
+use crate::search::*;
 mod eval;
+mod search;
 
 macro_rules! ignore {
     () => {
@@ -87,15 +96,10 @@ fn cmd_go(mut _tokens: std::str::SplitWhitespace<'_>, board: &mut Board) {
         false
     });
     
-    let chosen = vec.last();
+    let chosen = best_move(board);
 
-    match chosen {
-        Some(mv) => {
-            let thing = display_uci_move(&board,*mv);
-            println!("bestmove {}", thing);
-        }
-        None => println!("bestmove 0000"),
-    }
+    let thing = display_uci_move(&board,chosen);
+    println!("bestmove {}", thing);
 }
 
 
