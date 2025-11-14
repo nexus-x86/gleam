@@ -57,3 +57,19 @@ impl Eval for Board {
     }
 
 }
+
+#[cfg(test)]
+mod tests {
+    use cozy_chess::*;
+    use crate::eval::*;
+    #[test]
+    fn test_eval() {
+        let board1 = Board::from_fen("rnbq1b2/4kQ2/4B3/1N6/1N6/P5P1/P5PP/R1B1R1K1 b - - 2 29", false).unwrap();
+        let eval1 = board1.eval();
+        let board2 = Board::from_fen("8/8/8/8/7k/K1n5/8/8 b - - 0 81", false).unwrap();
+        let eval2 = board2.eval();
+
+        assert!(eval1 < 0, "got eval {eval1}");
+        assert!(eval2 > 0, "got eval {eval2}");
+    }
+}

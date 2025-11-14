@@ -7,10 +7,66 @@ const EVAL_BEST: EvalInt = EvalInt::MAX;
 
 
 
+fn quiesce(board: &mut Board, alpha: Option<EvalInt>, beta: Option<EvalInt>) -> EvalInt {
+    let static_eval = board.eval();
+    let mut best_value = static_eval;
+
+    let mut alpha = alpha.unwrap_or(EVAL_WORST);
+    let beta = beta.unwrap_or(EVAL_BEST);
+
+    if best_value >= beta {
+        return best_value;
+    }
+    if best_value > alpha {
+        alpha = best_value;
+    }
+
+    
+
+    // loop through all possible captures
+    let mut total_moves = 0;
+    let mut total_captures = 0;
+
+    let enemy_pieces = board.colors(!board.side_to_move());
+    let mut captures = Vec::new();
+    board.generate_moves(|moves| {
+        let mut captures2 = moves.clone();
+        // Bitmask to efficiently get all captures set-wise.
+        // Excluding en passant square for convenience.
+        captures2.to &= enemy_pieces;
+
+        total_moves += moves.len();
+        total_captures += captures2.len();
+
+
+        captures.extend(captures2);
+        false
+    });
+
+    for mv in captures {
+        let mut new_board = board.clone();
+        new_board.play(mv);
+        let cur_score = -quiesce(&mut new_board, Some(-alpha), Some(-beta));
+
+        if cur_score >= beta {
+            return cur_score;
+        }
+        if cur_score > best_value {
+            best_value = cur_score;
+        }
+        if cur_score > alpha {
+            alpha = cur_score;
+        }
+    }
+
+    return best_value;
+}
+
 // Search the game tree to find the best outcome for the player
 fn minmax(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<EvalInt>) -> EvalInt {
     if depth == 0 {
-        return board.eval();
+        //return board.eval();
+        return quiesce(board, alpha, beta);
     }
 
     let mut alpha = alpha.unwrap_or(EVAL_WORST);
@@ -49,7 +105,7 @@ fn minmax(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<
 
 // Finds the best move for a position
 fn search(board: &mut Board) -> Option<Move> {
-    const DEPTH: usize = 4;
+    const DEPTH: usize = 3;
     let mut move_list = Vec::new();
     board.generate_moves(|moves| {
         move_list.extend(moves);
@@ -57,7 +113,7 @@ fn search(board: &mut Board) -> Option<Move> {
     });
 
     let mut best_eval = EVAL_WORST;
-    let mut best_mv: Option<Move> = None;
+    let mut best_mv: Option<Move> = move_list.first().copied();
 
     for mv in move_list {
         let mut new_board = board.clone();
