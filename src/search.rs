@@ -95,7 +95,7 @@ fn minmax(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<
 
 // Finds the best move for a position
 fn search(board: &mut Board) -> Option<Move> {
-    const DEPTH: usize = 4;
+    const DEPTH: usize = 2;
     let mut move_list = Vec::new();
     board.generate_moves(|moves| {
         move_list.extend(moves);
