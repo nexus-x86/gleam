@@ -139,7 +139,7 @@ impl Eval for Board {
     
                 white_score += get_val(self.piece_on(s1).unwrap(),index);
             } else if self.color_on(s1) == Some(Color::Black) {
-                let blackIndex = (7 - convertFile(s1.file())) * 8 + convertRank(s1.rank());
+                let blackIndex = (7 - convertFile(s1.file())) * 8 + (7 - convertRank(s1.rank()));
                 black_score += get_val(self.piece_on(s1).unwrap(), blackIndex);
             }
         }
