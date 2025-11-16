@@ -94,7 +94,7 @@ fn minmax(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<
         }
     }
 
-    abs_best
+    return abs_best;
 }
 
 
@@ -120,7 +120,7 @@ fn search(board: &mut Board) -> Option<Move> {
         }
     }
 
-    best_mv
+    return best_mv;
 }
 
 /// Find the best move.

@@ -76,25 +76,11 @@ const king_pst : psqt = [
 ];
 
 fn convertFile(file: File) -> usize {
-    if file == File::A {return 0;}
-    else if file == File::B {return 1;}
-    else if file == File::C {return 2;}
-    else if file == File::D {return 3;}
-    else if file == File::E {return 4;}
-    else if file == File::F {return 5;}
-    else if file == File::G {return 6;}
-    else {return 7;}
+    return file as usize;
 }
 
 fn convertRank(rank: Rank) -> usize {
-    if rank == Rank::First {return 0;}
-    else if rank == Rank::Second {return 1;}
-    else if rank == Rank::Third {return 2;}
-    else if rank == Rank::Fourth {return 3;}
-    else if rank == Rank::Fifth {return 4;}
-    else if rank == Rank::Sixth {return 5;}
-    else if rank == Rank::Seventh {return 6;}
-    else {return 7;}
+    return rank as usize;
 }
 
 fn get_val(piece: Piece, index: usize) -> EvalInt {
@@ -132,15 +118,14 @@ impl Eval for Board {
 
 
         let bb = BitBoard::FULL;
-        let squares = &Square::ALL;
-        for (s1, &_s2) in bb.iter().zip(squares) {
-            if self.color_on(s1) == Some(Color::White) {
-                let index = convertFile(s1.file()) * 8 + convertRank(s1.rank());
+        for square in bb.iter() {
+            if self.color_on(square) == Some(Color::White) {
+                let index = convertFile(square.file()) * 8 + convertRank(square.rank());
     
-                white_score += get_val(self.piece_on(s1).unwrap(),index);
-            } else if self.color_on(s1) == Some(Color::Black) {
-                let blackIndex = (7 - convertFile(s1.file())) * 8 + (7 - convertRank(s1.rank()));
-                black_score += get_val(self.piece_on(s1).unwrap(), blackIndex);
+                white_score += get_val(self.piece_on(square).unwrap(),index);
+            } else if self.color_on(square) == Some(Color::Black) {
+                let blackIndex = (7 - convertFile(square.file())) * 8 + (7 - convertRank(square.rank()));
+                black_score += get_val(self.piece_on(square).unwrap(), blackIndex);
             }
         }
 
