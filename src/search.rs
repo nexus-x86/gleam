@@ -81,7 +81,12 @@ fn minmax(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<
     for mv in move_list {
         let mut new_board = board.clone();
         new_board.play(mv);
-        let abs_score = -minmax(&mut new_board, depth-1, Some(-beta),Some(-alpha));
+        let mut abs_score = 0;
+        if new_board.checkers() == BitBoard::EMPTY { // is someone in check
+            abs_score = -minmax(&mut new_board, depth-1, Some(-beta),Some(-alpha));
+        } else {
+            abs_score = -minmax(&mut new_board, depth, Some(-beta),Some(-alpha));
+        }
         abs_best = max(abs_best, abs_score);
         alpha = max(alpha,abs_best);
         if alpha >= beta {
@@ -95,7 +100,7 @@ fn minmax(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<
 
 // Finds the best move for a position
 fn search(board: &mut Board) -> Option<Move> {
-    const DEPTH: usize = 2;
+    const DEPTH: usize = 4;
     let mut move_list = Vec::new();
     board.generate_moves(|moves| {
         move_list.extend(moves);
