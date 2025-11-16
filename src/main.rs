@@ -13,6 +13,12 @@ use std::io;
 use crate::search::*;
 mod eval;
 mod search;
+pub type EvalInt = i32;
+
+
+// 12 is the number of bytes in the posInfo struct entry
+// 2^20 is the number of bytes in one binary megabyte
+const magicConstant : usize = (1 << 20) / 12; 
 
 macro_rules! ignore {
     () => {
@@ -86,7 +92,7 @@ fn set_position(mut tokens: std::str::SplitWhitespace<'_>) -> Board {
 // Function for doing a move. Prints to terminal the move the computer chooses
 // Arguments: Tokens and a board
 // Returns: None
-fn cmd_go(mut _tokens: std::str::SplitWhitespace<'_>, board: &mut Board) {
+fn cmd_go(mut _tokens: std::str::SplitWhitespace<'_>, board: &mut Board, transpositionTable: &mut search::HashTable) {
     let mut vec = Vec::new();
 
     board.generate_moves(|moves| {
@@ -96,7 +102,7 @@ fn cmd_go(mut _tokens: std::str::SplitWhitespace<'_>, board: &mut Board) {
         false
     });
     
-    let chosen = best_move(board);
+    let chosen = best_move(board, transpositionTable);
 
     let thing = display_uci_move(&board,chosen);
     println!("bestmove {}", thing);
@@ -108,7 +114,7 @@ fn main() {
     let stdin = io::stdin();
     
     let mut board = Board::default();
-
+    let mut transpositionTable = search::HashTable::default();
     loop {
         let mut line = String::new();
         stdin.read_line(&mut line).unwrap();
@@ -131,7 +137,7 @@ fn main() {
                     board = set_position(tokens);
                 }
                 "go" => {
-                    cmd_go(tokens, &mut board);
+                    cmd_go(tokens, &mut board, &mut transpositionTable);
                 }
                 _ => ignore!(),
             }
