@@ -70,7 +70,7 @@ impl HashTable {
 }
 // Does quiescence search
 // was advised to implement sprt before quies
-fn quiesce(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<EvalInt>, transpositionTable: &mut HashTable) -> EvalInt {
+fn quiesce(board: &mut Board, alpha: Option<EvalInt>, beta: Option<EvalInt>, transpositionTable: &mut HashTable) -> EvalInt {
     let static_eval = board.eval();
     let mut best_value = static_eval;
     let mut move_list = Vec::new();
@@ -84,7 +84,7 @@ fn quiesce(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option
     let beta = beta.unwrap_or(EVAL_BEST);
 
     if let Some(entry) = transpositionTable.probe(&board) {
-        if entry.depth as usize >= depth {
+        if entry.depth as usize >= 0 {
             return entry.eval;
         }
     }
@@ -110,7 +110,7 @@ fn quiesce(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option
     for mv in captures {
         let mut new_board = board.clone();
         new_board.play(mv);
-        let cur_score = -quiesce(&mut new_board, depth + 1, Some(-alpha), Some(-beta), transpositionTable);
+        let cur_score = -quiesce(&mut new_board, Some(-alpha), Some(-beta), transpositionTable);
 
         if cur_score >= beta {
             return cur_score;
@@ -129,7 +129,7 @@ fn quiesce(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option
             TranspositionEntry {
                 best_move: best_mv.unwrap(),
                 eval: best_value,
-                depth: depth as u8,
+                depth: 0,
             },
         );
     }
@@ -144,7 +144,7 @@ fn quiesce(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option
 fn minmax(board: &mut Board, depth: usize, alpha: Option<EvalInt>, beta: Option<EvalInt>, transpositionTable: &mut HashTable) -> EvalInt {
     if depth == 0 {
         //return board.eval();
-        return quiesce(board, 1, alpha, beta, transpositionTable);
+        return quiesce(board, alpha, beta, transpositionTable);
     }
 
     if let Some(entry) = transpositionTable.probe(&board) {
